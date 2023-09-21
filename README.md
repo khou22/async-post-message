@@ -6,10 +6,6 @@ This is a proof of concept for creating an async wrapper around the `postMessage
 
 ## Getting Started
 
-First, run the development server:
-
-```bash
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Install dependencies: `bun install`
+2. Run dev server: `bun dev`
+3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
