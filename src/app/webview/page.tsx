@@ -1,6 +1,8 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import { NextPage } from "next";
 import { useCallback, useState } from "react";
 
@@ -20,20 +22,33 @@ const WebviewPage: NextPage = () => {
   return (
     <div className="flex flex-col items-center justify-center p-4 max-w-md m-auto gap-y-8">
       <h1 className="text-3xl">Web View</h1>
-      <p>
-        Click the button below to fetch data from the parent window. It will
-        make a request via the synchronous `postMessage` API, but will be used
-        as if it were an asynchronous request.
-      </p>
 
-      <div className="flex flex-col justify-center items-center gap-y-2">
-        <Button onClick={handleFetch} disabled={isLoading || !parent}>
-          Get Data
-        </Button>
-        <p className="text-gray-500 text-sm italic">
-          Will fire a promise wrapped postMessage.
-        </p>
-      </div>
+      {!parent ? (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Not an iFrame</AlertTitle>
+          <AlertDescription>
+            This page must be loaded in an iFrame!
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          <p>
+            Click the button below to fetch data from the parent window. It will
+            make a request via the synchronous `postMessage` API, but will be
+            used as if it were an asynchronous request.
+          </p>
+
+          <div className="flex flex-col justify-center items-center gap-y-2">
+            <Button onClick={handleFetch} disabled={isLoading || !parent}>
+              Get Data
+            </Button>
+            <p className="text-gray-500 text-sm italic">
+              Will fire a promise wrapped postMessage.
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 };
