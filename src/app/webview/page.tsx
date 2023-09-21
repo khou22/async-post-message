@@ -3,19 +3,21 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AsyncPostMessage } from "@/utils/AsyncPostMessage/AsyncPostMessage";
-import { AlertTriangle } from "lucide-react";
+import {
+  AsyncPostMessageRequest,
+  AsyncPostMessageResponse,
+} from "@/utils/AsyncPostMessage/types";
+import { AlertTriangle, CheckCircle2Icon } from "lucide-react";
 import { NextPage } from "next";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-export type Promises = {
+export type MyPromises = {
   getText: () => string;
-  getNumber: () => number;
+  multiplyByFour: (n: number) => number;
 };
 
 const WebviewPage: NextPage = () => {
-  const asyncPostMessage = useRef<AsyncPostMessage<Promises>>(
-    new AsyncPostMessage<Promises>()
-  );
+  const asyncPostMessage = useRef(new AsyncPostMessage<MyPromises>());
 
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -23,33 +25,57 @@ const WebviewPage: NextPage = () => {
 
   const parent = window.parent;
 
-  const handleFetch = useCallback(async () => {
-    if (!parent) {
-      return;
-    }
-
-    // Send a request to the parent window.
-    asyncPostMessage.current.postMessage = (message) => {
-      console.debug("postMessage", message);
-      parent.postMessage(message);
+  useEffect(() => {
+    const handleMessage = (
+      event: MessageEvent<AsyncPostMessageResponse<MyPromises>>
+    ) => {
+      asyncPostMessage.current.onResponse(event.data);
     };
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
-    setLoading(true);
-    setError(null);
-    try {
-      const text = await asyncPostMessage.current.send("getText", []);
-      setValue(text);
-    } catch (e) {
-      console.error(e);
-      if (e instanceof Error) {
-        setError(e);
-      } else {
-        setError(new Error(String(e)));
+  const handleFetch = useCallback(
+    async (functionName: keyof MyPromises) => {
+      if (!parent) {
+        return;
       }
-    } finally {
-      setLoading(false);
-    }
-  }, [parent]);
+
+      // Send a request to the parent window.
+      asyncPostMessage.current.postMessage = (message) => {
+        console.debug("postMessage", message);
+        parent.postMessage(message);
+      };
+
+      setValue("");
+      setLoading(true);
+      setError(null);
+      try {
+        if (functionName === "multiplyByFour") {
+          const response = await asyncPostMessage.current.send(
+            "multiplyByFour",
+            [2]
+          );
+          setValue(String(response));
+        } else if (functionName === "getText") {
+          const response = await asyncPostMessage.current.send("getText", []);
+          setValue(response);
+        }
+      } catch (e) {
+        console.error(e);
+        if (e instanceof Error) {
+          setError(e);
+        } else {
+          setError(new Error(String(e)));
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [parent]
+  );
 
   return (
     <div className="flex flex-col items-center justify-center p-4 max-w-md m-auto gap-y-8">
@@ -72,22 +98,46 @@ const WebviewPage: NextPage = () => {
           </p>
 
           <div className="flex flex-col justify-center items-center gap-y-2">
-            <Button onClick={handleFetch} disabled={isLoading || !parent}>
-              {isLoading ? "Loading..." : "Get Data"}
-            </Button>
+            <div className="flex flex-row items-center justify-around gap-x-2">
+              <Button
+                onClick={() => handleFetch("multiplyByFour")}
+                disabled={isLoading || !parent}
+              >
+                Fetch Text
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => handleFetch("multiplyByFour")}
+                disabled={isLoading || !parent}
+              >
+                Multiply 2 by 4
+              </Button>
+            </div>
             <p className="text-gray-500 text-sm italic">
-              Will fire a promise wrapped postMessage.
+              {isLoading
+                ? "Loading..."
+                : "Will fire a promise wrapped postMessage."}
             </p>
           </div>
         </>
       )}
 
       {error && (
-        <Alert>
+        <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error Fetching</AlertTitle>
           <AlertDescription>
             Error firing promise to the parent: {error.message}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {value && (
+        <Alert>
+          <CheckCircle2Icon className="h-4 w-4 stroke-green-500" />
+          <AlertTitle>Successful Fetch</AlertTitle>
+          <AlertDescription>
+            <pre>{value}</pre>
           </AlertDescription>
         </Alert>
       )}

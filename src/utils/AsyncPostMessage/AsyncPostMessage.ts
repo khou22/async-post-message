@@ -35,7 +35,7 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
     const promise = new Promise<ReturnType<PromisesInterface[FnNameType]>>(
       (resolve, reject) => {
         this.callbacks.set(uid, { resolve, reject });
-        const message: AsyncPostMessageRequest = {
+        const message: AsyncPostMessageRequest<PromisesInterface> = {
           uid,
           functionName,
           args,
@@ -47,7 +47,9 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
     return promise;
   };
 
-  public onResponse(message: AsyncPostMessageResponse): void {
+  public onResponse(
+    message: AsyncPostMessageResponse<PromisesInterface>
+  ): void {
     const callback = this.callbacks.get(message.uid);
     if (callback) {
       this.callbacks.delete(message.uid);
@@ -59,7 +61,9 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
     }
   }
 
-  public postMessage(_message: AsyncPostMessageRequest): void {
+  public postMessage(
+    _message: AsyncPostMessageRequest<PromisesInterface>
+  ): void {
     console.warn("[AsyncPostMessage] postMessage unimplemented");
   }
 }

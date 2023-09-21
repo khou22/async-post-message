@@ -1,13 +1,13 @@
-export type AsyncPostMessageRequest = {
+export type AsyncPostMessageRequest<PromisesInterface extends Promises> = {
   uid: string;
-  functionName: string;
-  args: any[];
+  functionName: keyof PromisesInterface & string;
+  args: Parameters<PromisesInterface[keyof PromisesInterface & string]>;
 };
 
-export type AsyncPostMessageResponse = {
+export type AsyncPostMessageResponse<PromisesInterface extends Promises> = {
   uid: string;
-  functionName: string;
-  response: any;
+  functionName: keyof PromisesInterface & string;
+  response: ReturnType<PromisesInterface[keyof PromisesInterface & string]>;
   error?: string;
 };
 
