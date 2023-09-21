@@ -98,7 +98,7 @@ export default function Home() {
   }, [fetchLatency, textValue]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-24 gap-y-8 max-w-4xl m-auto">
+    <main className="flex min-h-screen flex-col items-center justify-start p-16 gap-y-8 max-w-4xl m-auto">
       <h1 className="text-4xl font-bold">Promise Post Message</h1>
       <p>
         Enter some text and click the &quot;Get Data&quot; button in the Web

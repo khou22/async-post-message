@@ -9,6 +9,9 @@ import { AlertTriangle, CheckCircle2Icon } from "lucide-react";
 import { NextPage } from "next";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+/**
+ * The promises that I want to execute between the parent and the iFrame contexts.
+ */
 export type MyPromises = {
   getText: () => string;
   multiplyByFour: (n: number) => number;
@@ -83,7 +86,7 @@ const WebviewPage: NextPage = () => {
   return (
     <div className="flex flex-col items-center justify-center p-4 max-w-xl m-auto gap-y-8">
       <div className="text-center">
-        <h1 className="text-3xl mb-2">Web View</h1>
+        <h1 className="text-3xl mb-2">iFrame Web View</h1>
         <pre>{PAGES.WEBVIEW}</pre>
       </div>
 
@@ -95,10 +98,7 @@ const WebviewPage: NextPage = () => {
 
       <div className="flex flex-col justify-center items-center gap-y-2">
         <div className="flex flex-row items-center justify-around gap-x-2">
-          <Button
-            onClick={() => handleFetch("multiplyByFour")}
-            disabled={isLoading}
-          >
+          <Button onClick={() => handleFetch("getText")} disabled={isLoading}>
             Fetch Text
           </Button>
           <Button
