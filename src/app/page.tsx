@@ -1,6 +1,7 @@
 "use client";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AsyncPostMessageRequest,
@@ -133,6 +134,20 @@ export default function Home() {
             title="IFrame"
           />
         </AspectRatio>
+      </div>
+
+      <div className="max-w-3xl w-full flex flex-row justify-between items-center">
+        <p>
+          Made by{" "}
+          <a
+            href="https://linkedin.com/in/kevinhou22"
+            className="text-blue-500 underline hover:text-blue-600"
+          >
+            Kevin Hou
+          </a>
+        </p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img alt="Codeium" src="https://codeium.com/badges/main" />
       </div>
     </main>
   );
