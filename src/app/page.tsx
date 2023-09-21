@@ -98,69 +98,81 @@ export default function Home() {
   }, [fetchLatency, textValue]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-16 gap-y-8 max-w-4xl m-auto">
-      <h1 className="text-4xl font-bold">Promise Post Message</h1>
-      <p>
-        Enter some text and click the &quot;Get Data&quot; button in the Web
-        View iFrame. The Web View will fetch the data from the parent window.
-      </p>
-
-      <div className="w-full flex flex-col gap-y-1">
-        <label className="text-sm font-bold">Promise Latency (optional)</label>
-        <Select
-          value={fetchLatency}
-          onValueChange={(v) => setFetchLatency(v as LatencyType)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a latency" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Latency</SelectLabel>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="timeout">Timeout</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="w-full flex flex-col gap-y-1">
-        <label className="text-sm font-bold">Text Value</label>
-        <Textarea
-          placeholder="Enter some text"
-          value={textValue}
-          onChange={(e) => setTextValue(e.target.value)}
-          className="w-full h-24 resize-none"
-        />
-      </div>
-
-      <div className="max-w-2xl w-full shadow-lg">
-        <AspectRatio ratio={3 / 2}>
-          <iframe
-            ref={iframeRef}
-            src={PAGES.WEBVIEW}
-            className="w-full h-full border border-black rounded"
-            title="IFrame"
-          />
-        </AspectRatio>
-      </div>
-
-      <div className="max-w-3xl w-full flex flex-row justify-between items-center">
+    <>
+      <a
+        href="https://github.com/khou22/async-post-message"
+        target="_blank"
+        className="fixed top-4 right-4 hover:opacity-80 opacity-100 transition-opacity duration-150"
+        aria-label="github repo"
+      >
+        <Image src="/github-mark.svg" alt="github" width={30} height={30} />
+      </a>
+      <main className="flex min-h-screen flex-col items-center justify-start p-16 gap-y-8 max-w-4xl m-auto">
+        <h1 className="text-4xl font-bold">Promise Post Message</h1>
         <p>
-          Made by{" "}
-          <a
-            href="https://linkedin.com/in/kevinhou22"
-            className="text-blue-500 underline hover:text-blue-600"
-          >
-            Kevin Hou
-          </a>
+          Enter some text and click the &quot;Get Data&quot; button in the Web
+          View iFrame. The Web View will fetch the data from the parent window.
         </p>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="Codeium" src="https://codeium.com/badges/main" />
-      </div>
-    </main>
+
+        <div className="w-full flex flex-col gap-y-1">
+          <label className="text-sm font-bold">
+            Promise Latency (optional)
+          </label>
+          <Select
+            value={fetchLatency}
+            onValueChange={(v) => setFetchLatency(v as LatencyType)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a latency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Latency</SelectLabel>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="timeout">Timeout</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="w-full flex flex-col gap-y-1">
+          <label className="text-sm font-bold">Text Value</label>
+          <Textarea
+            placeholder="Enter some text"
+            value={textValue}
+            onChange={(e) => setTextValue(e.target.value)}
+            className="w-full h-24 resize-none"
+          />
+        </div>
+
+        <div className="max-w-2xl w-full shadow-lg">
+          <AspectRatio ratio={3 / 2}>
+            <iframe
+              ref={iframeRef}
+              src={PAGES.WEBVIEW}
+              className="w-full h-full border border-black rounded"
+              title="IFrame"
+            />
+          </AspectRatio>
+        </div>
+
+        <div className="max-w-3xl w-full flex flex-row justify-between items-center mt-16">
+          <p>
+            Made by{" "}
+            <a
+              href="https://linkedin.com/in/kevinhou22"
+              className="text-blue-500 underline hover:text-blue-600"
+            >
+              Kevin Hou
+            </a>
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="Codeium" src="https://codeium.com/badges/main" />
+        </div>
+      </main>
+    </>
   );
 }
