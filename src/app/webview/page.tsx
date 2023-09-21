@@ -2,20 +2,52 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { AsyncPostMessage } from "@/utils/AsyncPostMessage/AsyncPostMessage";
 import { AlertTriangle } from "lucide-react";
 import { NextPage } from "next";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+
+export type Promises = {
+  getText: () => string;
+  getNumber: () => number;
+};
 
 const WebviewPage: NextPage = () => {
+  const asyncPostMessage = useRef<AsyncPostMessage<Promises>>(
+    new AsyncPostMessage<Promises>()
+  );
+
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [value, setValue] = useState("");
 
   const parent = window.parent;
 
-  const handleFetch = useCallback(() => {
+  const handleFetch = useCallback(async () => {
     if (!parent) {
       return;
+    }
+
+    // Send a request to the parent window.
+    asyncPostMessage.current.postMessage = (message) => {
+      console.debug("postMessage", message);
+      parent.postMessage(message);
+    };
+
+    setLoading(true);
+    setError(null);
+    try {
+      const text = await asyncPostMessage.current.send("getText", []);
+      setValue(text);
+    } catch (e) {
+      console.error(e);
+      if (e instanceof Error) {
+        setError(e);
+      } else {
+        setError(new Error(String(e)));
+      }
+    } finally {
+      setLoading(false);
     }
   }, [parent]);
 
@@ -41,13 +73,23 @@ const WebviewPage: NextPage = () => {
 
           <div className="flex flex-col justify-center items-center gap-y-2">
             <Button onClick={handleFetch} disabled={isLoading || !parent}>
-              Get Data
+              {isLoading ? "Loading..." : "Get Data"}
             </Button>
             <p className="text-gray-500 text-sm italic">
               Will fire a promise wrapped postMessage.
             </p>
           </div>
         </>
+      )}
+
+      {error && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Error Fetching</AlertTitle>
+          <AlertDescription>
+            Error firing promise to the parent: {error.message}
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );
