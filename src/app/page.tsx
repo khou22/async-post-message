@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { delay } from "@/utils/delay";
 
-type LatencyType = "none" | "low" | "medium" | "high";
+type LatencyType = "none" | "low" | "medium" | "high" | "timeout";
 
 export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -53,6 +53,8 @@ export default function Home() {
         case "high":
           await delay(2000);
           break;
+        case "timeout":
+          await delay(10000);
         case "none":
         default:
           break;
@@ -110,6 +112,7 @@ export default function Home() {
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>
+              <SelectItem value="timeout">Timeout</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

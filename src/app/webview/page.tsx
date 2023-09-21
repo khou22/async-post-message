@@ -51,12 +51,16 @@ const WebviewPage: NextPage = () => {
     setError(null);
     try {
       if (functionName === "multiplyByFour") {
-        const response = await asyncPostMessage.current.send("multiplyByFour", [
-          2,
-        ]);
+        const response = await asyncPostMessage.current.send(
+          "multiplyByFour",
+          [2],
+          { timeoutMs: 3000 }
+        );
         setValue(String(response));
       } else if (functionName === "getText") {
-        const response = await asyncPostMessage.current.send("getText", []);
+        const response = await asyncPostMessage.current.send("getText", [], {
+          timeoutMs: 3000,
+        });
         setValue(response);
       }
     } catch (e) {
@@ -72,7 +76,7 @@ const WebviewPage: NextPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 max-w-md m-auto gap-y-8">
+    <div className="flex flex-col items-center justify-center p-4 max-w-xl m-auto gap-y-8">
       <div className="text-center">
         <h1 className="text-3xl mb-2">Web View</h1>
         <pre>{PAGES.WEBVIEW}</pre>
@@ -110,9 +114,12 @@ const WebviewPage: NextPage = () => {
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Error Fetching</AlertTitle>
+          <AlertTitle>Promise Error</AlertTitle>
           <AlertDescription>
-            Error firing promise to the parent: {error.message}
+            Error firing promise to the parent:
+            <pre className="break-word whitespace-break-spaces">
+              {error.message}
+            </pre>
           </AlertDescription>
         </Alert>
       )}

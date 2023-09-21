@@ -23,11 +23,14 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
    *
    * @param functionName The name of the function to call
    * @param args The arguments to pass to the function
+   * @param options Options for the request. Defaults to a timeout of 10 seconds. If `0` is passed
+   * as the timeout, the request will not timeout.
    * @returns A promise that resolves with the return value of the function
    */
   public send = <FnNameType extends keyof PromisesInterface & string>(
     functionName: FnNameType,
-    args: Parameters<PromisesInterface[FnNameType]>
+    args: Parameters<PromisesInterface[FnNameType]>,
+    options?: { timeoutMs: number }
   ): Promise<ReturnType<PromisesInterface[FnNameType]>> => {
     // Generate a unique ID for this request.
     const uid = getUUID();
@@ -41,6 +44,15 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
           args,
         };
         this.postMessage(message);
+
+        // Set a timeout for the request (defaults to 10 seconds).
+        const timeout = options?.timeoutMs ?? 10000;
+        if (timeout > 0) {
+          setTimeout(() => {
+            reject(`${functionName} timed out (id: ${uid})`);
+            this.callbacks.delete(uid);
+          }, timeout);
+        }
       }
     );
 
@@ -51,13 +63,17 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
     message: AsyncPostMessageResponse<PromisesInterface>
   ): void {
     const callback = this.callbacks.get(message.uid);
-    if (callback) {
-      this.callbacks.delete(message.uid);
-      if (message.error) {
-        callback.reject(message.error);
-      } else {
-        callback.resolve(message.response);
-      }
+
+    // If the callback is not defined, do nothing as it means the request timed out.
+    if (!callback) {
+      return;
+    }
+
+    this.callbacks.delete(message.uid);
+    if (message.error) {
+      callback.reject(message.error);
+    } else {
+      callback.resolve(message.response);
     }
   }
 
