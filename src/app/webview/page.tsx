@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export type MyPromises = {
   getText: () => string;
   multiplyByFour: (n: number) => number;
+  induceError: () => boolean;
 };
 
 const WebviewPage: NextPage = () => {
@@ -62,6 +63,10 @@ const WebviewPage: NextPage = () => {
           timeoutMs: 3000,
         });
         setValue(response);
+      } else if (functionName === "induceError") {
+        await asyncPostMessage.current.send("induceError", [], {
+          timeoutMs: 3000,
+        });
       }
     } catch (e) {
       console.error(e);
@@ -102,6 +107,13 @@ const WebviewPage: NextPage = () => {
             disabled={isLoading}
           >
             Multiply 2 by 4
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => handleFetch("induceError")}
+            disabled={isLoading}
+          >
+            Induce Error
           </Button>
         </div>
         <p className="text-gray-500 text-sm italic">

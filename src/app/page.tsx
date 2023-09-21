@@ -24,6 +24,22 @@ import { delay } from "@/utils/delay";
 
 type LatencyType = "none" | "low" | "medium" | "high" | "timeout";
 
+const getLatency = (latencyType: LatencyType) => {
+  switch (latencyType) {
+    case "low":
+      return 300;
+    case "medium":
+      return 750;
+    case "high":
+      return 2000;
+    case "timeout":
+      return 10000;
+    case "none":
+    default:
+      return 0;
+  }
+};
+
 export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [textValue, setTextValue] = useState(
@@ -43,24 +59,9 @@ export default function Home() {
     const handleMessage = async (
       event: MessageEvent<AsyncPostMessageRequest<MyPromises>>
     ) => {
-      switch (fetchLatency) {
-        case "low":
-          await delay(300);
-          break;
-        case "medium":
-          await delay(750);
-          break;
-        case "high":
-          await delay(2000);
-          break;
-        case "timeout":
-          await delay(10000);
-        case "none":
-        default:
-          break;
-      }
-
       const { uid, functionName, args } = event.data;
+      const latency = getLatency(fetchLatency);
+      await delay(latency);
       switch (functionName) {
         case "getText": {
           postMessageToIFrame({
@@ -79,6 +80,14 @@ export default function Home() {
           });
           break;
         }
+        case "induceError":
+          postMessageToIFrame({
+            uid,
+            functionName: "induceError",
+            response: null,
+            error: "Intentionally thrown error",
+          });
+          break;
       }
     };
 

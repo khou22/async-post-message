@@ -7,8 +7,10 @@ export type AsyncPostMessageRequest<PromisesInterface extends Promises> = {
 export type AsyncPostMessageResponse<PromisesInterface extends Promises> = {
   uid: string;
   functionName: keyof PromisesInterface & string;
-  response: ReturnType<PromisesInterface[keyof PromisesInterface & string]>;
-  error?: string;
+  response: ReturnType<
+    PromisesInterface[keyof PromisesInterface & string]
+  > | null;
+  error?: string | null;
 };
 
 export interface Promises {
