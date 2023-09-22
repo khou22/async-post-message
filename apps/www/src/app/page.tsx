@@ -3,10 +3,6 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  AsyncPostMessageRequest,
-  AsyncPostMessageResponse,
-} from "@/utils/AsyncPostMessage/types";
 import { PAGES } from "@/utils/pages";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { delay } from "@/utils/delay";
+import { handleWebViewRequest } from "../../../../src/ParentHandler";
 
 type LatencyType = "none" | "low" | "medium" | "high" | "timeout";
 
@@ -47,53 +44,46 @@ export default function Home() {
   );
   const [fetchLatency, setFetchLatency] = useState<LatencyType>("none");
 
-  const postMessageToIFrame = (
-    message: AsyncPostMessageResponse<MyPromises>
-  ) => {
-    if (iframeRef.current) {
-      iframeRef.current.contentWindow?.postMessage(message, "*");
-    }
-  };
-
   useEffect(() => {
-    const handleMessage = async (
-      event: MessageEvent<AsyncPostMessageRequest<MyPromises>>
-    ) => {
-      const { uid, functionName, args } = event.data;
-      const latency = getLatency(fetchLatency);
-      await delay(latency);
-      switch (functionName) {
-        case "getText": {
-          postMessageToIFrame({
-            uid,
-            functionName: "getText",
-            response: textValue,
-          });
-          break;
-        }
-        case "multiplyByFour": {
-          const argsTyped = args as Parameters<MyPromises["multiplyByFour"]>;
-          postMessageToIFrame({
-            uid,
-            functionName: "multiplyByFour",
-            response: 4 * argsTyped[0],
-          });
-          break;
-        }
-        case "induceError":
-          postMessageToIFrame({
-            uid,
-            functionName: "induceError",
-            response: null,
-            error: "Intentionally thrown error",
-          });
-          break;
-      }
-    };
+    if (!iframeRef.current?.contentWindow) return;
 
-    window.addEventListener("message", handleMessage);
+    const unsubscribe = handleWebViewRequest<MyPromises>(
+      iframeRef.current.contentWindow,
+      async (request) => {
+        const { uid, functionName, args } = request;
+        const latency = getLatency(fetchLatency);
+        await delay(latency);
+        switch (functionName) {
+          case "getText": {
+            const response = textValue;
+            return {
+              uid,
+              functionName: "getText",
+              response,
+            };
+          }
+          case "multiplyByFour": {
+            const argsTyped = args as Parameters<MyPromises["multiplyByFour"]>;
+            const response = 4 * argsTyped[0];
+            return {
+              uid,
+              functionName: "multiplyByFour",
+              response,
+            };
+          }
+          case "induceError":
+            return {
+              uid,
+              functionName: "induceError",
+              response: null,
+              error: "Intentionally thrown error",
+            };
+        }
+      }
+    );
+
     return () => {
-      window.removeEventListener("message", handleMessage);
+      unsubscribe();
     };
   }, [fetchLatency, textValue]);
 

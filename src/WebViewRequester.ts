@@ -5,8 +5,8 @@ import { AsyncPostMessageResponse, Promises } from "./RequestManager/types";
  * The Singleton class defines the `getInstance` method that lets clients access
  * the unique singleton instance.
  */
-export class AsyncPostMessage<PromisesInterface extends Promises = any> {
-  private static instance: AsyncPostMessage;
+export class WebViewRequester<PromisesInterface extends Promises = any> {
+  private static instance: WebViewRequester;
 
   private requestManager: RequestManager<PromisesInterface>;
 
@@ -21,8 +21,12 @@ export class AsyncPostMessage<PromisesInterface extends Promises = any> {
     // Listen for messages from the parent.
     window.addEventListener(
       "message",
-      (event: MessageEvent<AsyncPostMessageResponse<PromisesInterface>>) =>
-        this.requestManager.onResponse(event.data)
+      (event: MessageEvent<AsyncPostMessageResponse<PromisesInterface>>) => {
+        if (!event.data) {
+          return;
+        }
+        this.requestManager.onResponse(event.data);
+      }
     );
 
     // Setup data pipeline to send messages to the parent.
@@ -37,13 +41,15 @@ export class AsyncPostMessage<PromisesInterface extends Promises = any> {
    * We use a singleton so that the client does not need to worry about creating multiple
    * instances of the `AsyncPostMessage` class.
    */
-  public static getInstance(): AsyncPostMessage {
-    if (!AsyncPostMessage.instance) {
-      AsyncPostMessage.instance = new AsyncPostMessage();
+  public static getInstance = <
+    PromisesInterface extends Promises
+  >(): WebViewRequester<PromisesInterface> => {
+    if (!WebViewRequester.instance) {
+      WebViewRequester.instance = new WebViewRequester();
     }
 
-    return AsyncPostMessage.instance;
-  }
+    return WebViewRequester.instance;
+  };
 
   /**
    * Execute a strongly typed promise that is executed in the parent process.
