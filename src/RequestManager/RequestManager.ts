@@ -2,16 +2,20 @@ import { generateAlphaNumericUniqueId } from "../utils";
 import {
   AsyncPostMessageRequest,
   AsyncPostMessageResponse,
+  CallbackType,
   Promises,
+  UidType,
 } from "./types";
 
-type UidType = string;
-type CallbackType = {
-  resolve: (data: any) => void;
-  reject: (error: string) => void;
-};
-
-export class AsyncPostMessage<PromisesInterface extends Promises> {
+/**
+ * A class for managing async postMessage requests and their promise wrappers. Each instance
+ * stores a map of callbacks for each unique ID. It does not wrap the `postMessage` API. Instead,
+ * it allows the client to set the listener and postMessage methods on their own.
+ */
+export class RequestManager<PromisesInterface extends Promises> {
+  /**
+   * Map of callbacks for each promise's unique ID.
+   */
   private callbacks: Map<UidType, CallbackType>;
 
   constructor() {
@@ -49,7 +53,7 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
         const timeout = options?.timeoutMs ?? 10000;
         if (timeout > 0) {
           setTimeout(() => {
-            reject(`${functionName} timed out (id: ${uid})`);
+            reject(new Error(`${functionName} timed out (id: ${uid})`));
             this.callbacks.delete(uid);
           }, timeout);
         }
@@ -59,6 +63,11 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
     return promise;
   };
 
+  /**
+   * Handler for postMessages to the client.
+   *
+   * @param message Message payload received by the webview.
+   */
   public onResponse(
     message: AsyncPostMessageResponse<PromisesInterface>
   ): void {
@@ -71,12 +80,18 @@ export class AsyncPostMessage<PromisesInterface extends Promises> {
 
     this.callbacks.delete(message.uid);
     if (message.error) {
-      callback.reject(message.error);
+      callback.reject(new Error(message.error));
     } else {
       callback.resolve(message.response);
     }
   }
 
+  /**
+   * Send a strongly typed async postMessage request to the target. This should be set by the
+   * client.
+   *
+   * @param _message Message payload to send to the target.
+   */
   public postMessage(
     _message: AsyncPostMessageRequest<PromisesInterface>
   ): void {

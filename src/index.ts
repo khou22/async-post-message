@@ -1,2 +1,3 @@
-export * from "./AsyncPostMessage/AsyncPostMessage";
-export * from "./AsyncPostMessage/types";
+export * from "./AsyncPostMessage";
+export * from "./RequestManager/RequestManager";
+export * from "./RequestManager/types";
