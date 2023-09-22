@@ -18,11 +18,61 @@ Define the promises types that you would like to execute across the frame contex
 export type MyPromises = {
   getText: () => string;
   multiplyByFour: (n: number) => number;
+};
+```
+
+The parent process needs to be set up to handle the promise requests:
+
+```typescript
+window.addEventListener("message", async (
+    event: MessageEvent<AsyncPostMessageRequest<MyPromises>>
+) => {
+    const { uid, functionName, args } = event.data;
+    switch (functionName) {
+        case "multiplyByFour": {
+            iframeRef.current.contentWindow.postMessage({
+                uid,
+                functionName: "multiplyByFour",
+                response: 4 * args[0],
+            });
+            break;
+        }
+});
+```
+
+On the iFrame page (or other web view that can `postMessage`), create a new `AsyncPostMessage` instance with the promise interface as the generic argument.
+
+```typescript
+const asyncPostMessage = new AsyncPostMessage<MyPromises>();
+window.addEventListener("message", (
+    event: MessageEvent<AsyncPostMessageResponse<MyPromises>>
+) => asyncPostMessage.onResponse(event.data))
+```
+
+Now to call a promise you can simply call the `send()`:
+
+```typescript
+// Set the handler.
+asyncPostMessage.postMessage = (message) => window.parent.postMessage(message);
+
+// Call the promise.
+const response = await asyncPostMessage.current.send("multiplyByFour", 4);
+console.log(response); // 16
+```
+
+### Usage in React
+
+Define the promises types that you would like to execute across the frame contexts:
+
+```typescript
+export type MyPromises = {
+  getText: () => string;
+  multiplyByFour: (n: number) => number;
   induceError: () => boolean;
 };
 ```
 
-### Parent Window
+#### Parent Window
 
 The parent process needs to be set up to handle the promise requests:
 
@@ -50,7 +100,7 @@ useEffect(() => {
 }, [fetchLatency, textValue]);
 ```
 
-### iFrame Web View
+#### iFrame Web View
 
 On the iFrame page, create a new `AsyncPostMessage` instance with the promise interface as the generic argument.
 
