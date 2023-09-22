@@ -84,13 +84,13 @@ const WebviewPage: NextPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 max-w-xl m-auto gap-y-8">
+    <div className="flex flex-col items-center justify-center p-4 m-auto gap-y-8 min-h-screen bg-white">
       <div className="text-center">
         <h1 className="text-3xl mb-2">iFrame Web View</h1>
         <pre>{PAGES.WEBVIEW}</pre>
       </div>
 
-      <p>
+      <p className="max-w-xl">
         Click the button below to fetch data from the parent window. It will
         make a request via the synchronous `postMessage` API, but will be used
         as if it were an asynchronous request.

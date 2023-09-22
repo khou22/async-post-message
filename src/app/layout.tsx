@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -19,7 +20,14 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body
+        className={cn(
+          inter.className,
+          "bg-gradient-to-br from-white to-gray-100"
+        )}
+      >
+        {children}
+      </body>
     </html>
   );
 }
