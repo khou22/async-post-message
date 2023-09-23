@@ -1,6 +1,6 @@
 {
   "name": "async-post-message",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Async postMessage protocol",
   "author": "Kevin Hou",
   "license": "MIT",

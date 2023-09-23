@@ -2,7 +2,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { WebViewRequester } from "../../../../../src/WebViewRequester";
+import { WebViewRequester } from "async-post-message";
 import { PAGES } from "@/utils/pages";
 import { AlertTriangle, CheckCircle2Icon } from "lucide-react";
 import { NextPage } from "next";

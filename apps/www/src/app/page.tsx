@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { delay } from "@/utils/delay";
-import { handleWebViewRequest } from "../../../../src/ParentHandler";
+import { handleWebViewRequest } from "async-post-message";
 
 type LatencyType = "none" | "low" | "medium" | "high" | "timeout";
 
