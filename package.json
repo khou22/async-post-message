@@ -1,12 +1,24 @@
 {
   "name": "async-post-message",
-  "version": "0.0.3",
-  "description": "Async postMessage protocol",
-  "author": "Kevin Hou",
+  "version": "0.1.0",
+  "description": "Asynchronous postMessage protocol for typed, promise-based windows and iFrame communication",
+  "author": "Kevin Hou (https://khou22.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/khou22/async-post-message/issues"
   },
+  "keywords": [
+    "postMessage",
+    "promise",
+    "async",
+    "window",
+    "iframe",
+    "typed",
+    "promise-based",
+    "await",
+    "react",
+    "typescript"
+  ],
   "homepage": "https://async-post-message.vercel.app",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,6 +26,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khou22/async-post-message.git"
+  },
   "scripts": {
     "build": "tsup",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,9 +38,5 @@
     "ts-node": "^10.9.1",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/khou22/async-post-message.git"
   }
 }
