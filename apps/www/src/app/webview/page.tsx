@@ -2,8 +2,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AsyncPostMessage } from "@/utils/AsyncPostMessage/AsyncPostMessage";
-import { AsyncPostMessageResponse } from "@/utils/AsyncPostMessage/types";
+import { WebViewRequester } from "async-post-message";
 import { PAGES } from "@/utils/pages";
 import { AlertTriangle, CheckCircle2Icon } from "lucide-react";
 import { NextPage } from "next";
@@ -19,7 +18,7 @@ export type MyPromises = {
 };
 
 const WebviewPage: NextPage = () => {
-  const asyncPostMessage = useRef(new AsyncPostMessage<MyPromises>());
+  const asyncPostMessage = useRef<WebViewRequester<MyPromises>>();
 
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -29,45 +28,32 @@ const WebviewPage: NextPage = () => {
     if (!window) {
       setError(new Error("Not an iFrame"));
     }
-  }, []);
-
-  useEffect(() => {
-    const handleMessage = (
-      event: MessageEvent<AsyncPostMessageResponse<MyPromises>>
-    ) => {
-      asyncPostMessage.current.onResponse(event.data);
-    };
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
+    asyncPostMessage.current = WebViewRequester.getInstance<MyPromises>();
   }, []);
 
   const handleFetch = useCallback(async (functionName: keyof MyPromises) => {
-    // Send a request to the parent window.
-    asyncPostMessage.current.postMessage = (message) => {
-      console.debug("postMessage", message);
-      window.parent.postMessage(message);
-    };
-
     setValue("");
     setLoading(true);
     setError(null);
     try {
+      if (!asyncPostMessage.current) {
+        throw new Error("Not an iFrame");
+      }
+
       if (functionName === "multiplyByFour") {
-        const response = await asyncPostMessage.current.send(
+        const response = await asyncPostMessage.current.execute(
           "multiplyByFour",
           [2],
           { timeoutMs: 3000 }
         );
         setValue(String(response));
       } else if (functionName === "getText") {
-        const response = await asyncPostMessage.current.send("getText", [], {
+        const response = await asyncPostMessage.current.execute("getText", [], {
           timeoutMs: 3000,
         });
         setValue(response);
       } else if (functionName === "induceError") {
-        await asyncPostMessage.current.send("induceError", [], {
+        await asyncPostMessage.current.execute("induceError", [], {
           timeoutMs: 3000,
         });
       }

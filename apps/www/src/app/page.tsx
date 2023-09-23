@@ -3,10 +3,6 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  AsyncPostMessageRequest,
-  AsyncPostMessageResponse,
-} from "@/utils/AsyncPostMessage/types";
 import { PAGES } from "@/utils/pages";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { delay } from "@/utils/delay";
+import { handleWebViewRequest } from "async-post-message";
+import Link from "next/link";
 
 type LatencyType = "none" | "low" | "medium" | "high" | "timeout";
 
@@ -45,55 +43,48 @@ export default function Home() {
   const [textValue, setTextValue] = useState(
     `The page loaded at ${moment().format("lll")}`
   );
-  const [fetchLatency, setFetchLatency] = useState<LatencyType>("none");
-
-  const postMessageToIFrame = (
-    message: AsyncPostMessageResponse<MyPromises>
-  ) => {
-    if (iframeRef.current) {
-      iframeRef.current.contentWindow?.postMessage(message, "*");
-    }
-  };
+  const [fetchLatency, setFetchLatency] = useState<LatencyType>("low");
 
   useEffect(() => {
-    const handleMessage = async (
-      event: MessageEvent<AsyncPostMessageRequest<MyPromises>>
-    ) => {
-      const { uid, functionName, args } = event.data;
-      const latency = getLatency(fetchLatency);
-      await delay(latency);
-      switch (functionName) {
-        case "getText": {
-          postMessageToIFrame({
-            uid,
-            functionName: "getText",
-            response: textValue,
-          });
-          break;
-        }
-        case "multiplyByFour": {
-          const argsTyped = args as Parameters<MyPromises["multiplyByFour"]>;
-          postMessageToIFrame({
-            uid,
-            functionName: "multiplyByFour",
-            response: 4 * argsTyped[0],
-          });
-          break;
-        }
-        case "induceError":
-          postMessageToIFrame({
-            uid,
-            functionName: "induceError",
-            response: null,
-            error: "Intentionally thrown error",
-          });
-          break;
-      }
-    };
+    if (!iframeRef.current?.contentWindow) return;
 
-    window.addEventListener("message", handleMessage);
+    const unsubscribe = handleWebViewRequest<MyPromises>(
+      iframeRef.current.contentWindow,
+      async (request) => {
+        const { uid, functionName, args } = request;
+        const latency = getLatency(fetchLatency);
+        await delay(latency);
+        switch (functionName) {
+          case "getText": {
+            const response = textValue;
+            return {
+              uid,
+              functionName: "getText",
+              response,
+            };
+          }
+          case "multiplyByFour": {
+            const argsTyped = args as Parameters<MyPromises["multiplyByFour"]>;
+            const response = 4 * argsTyped[0];
+            return {
+              uid,
+              functionName: "multiplyByFour",
+              response,
+            };
+          }
+          case "induceError":
+            return {
+              uid,
+              functionName: "induceError",
+              response: null,
+              error: "Intentionally thrown error",
+            };
+        }
+      }
+    );
+
     return () => {
-      window.removeEventListener("message", handleMessage);
+      unsubscribe();
     };
   }, [fetchLatency, textValue]);
 
@@ -112,6 +103,15 @@ export default function Home() {
         <p>
           Enter some text and click the &quot;Get Data&quot; button in the Web
           View iFrame. The Web View will fetch the data from the parent window.
+          Usage{" "}
+          <Link
+            href="https://github.com/khou22/async-post-message#usage"
+            target="_blank"
+            className="text-blue-500 hover:text-blue-700 underline"
+          >
+            docs
+          </Link>{" "}
+          available.
         </p>
 
         <div className="w-full flex flex-col gap-y-1">
@@ -169,8 +169,13 @@ export default function Home() {
               Kevin Hou
             </a>
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="Codeium" src="https://codeium.com/badges/main" />
+          <a
+            href="https://codeium.com?repo_name=khou22%2Fasync-post-message"
+            target="_blank"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt="Codeium" src="https://codeium.com/badges/main" />
+          </a>
         </div>
       </main>
     </>
