@@ -1,26 +1,46 @@
+<div align="center">
+
 # Async Post Message
 
-[![built with Codeium](https://codeium.com/badges/main)](https://codeium.com?repo_name=khou22%2Fasync-post-message) ![GitHub followers](https://img.shields.io/github/followers/khou22) ![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/kevinhou22)
+</div>
 
-I have been using the Javascript `postMessage` [[docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)] to communicate between frames, but have been frustrated that communication is not strongly guaranteed. You can send a message reliably, but there is no notion of an async call --> response. Rather, you can send a message to the other context and hope you get a response. You need to instrument listening to the correct response and yet this is still quite complex if you want to run an `async` request.
+[![built with Codeium](https://codeium.com/badges/main)](https://codeium.com?repo_name=khou22%2Fasync-post-message) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues) ![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/kevinhou22)
 
-In this demo, I create a promise wrapper around the `postMessage` Javascript API and handle sending messages between contexts so that you can simply run `await asyncPromise.send('functionName', [...args])` in your client code.
+[![NPM](https://nodei.co/npm/async-post-message.png)](https://nodei.co/npm/async-post-message/)
+
+The `async` / `await` for window-based communication. Fully typed and works with Typescript, React, and NextJS.
+
+``` typescript
+const resp = await window.postMessage(req)
+```
 
 ## Demo
 
 [![Demo](/docs/demo.gif)](/docs/demo.gif)
 
-## Usage
+## Motivation
 
-### Installation
+I have been using the Javascript `postMessage` [[docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)] to communicate between frames, but have been frustrated that communication is not strongly guaranteed. You can send a message reliably, but there is no notion of an async call --> response. Rather, you can send a message to the other context and hope you get a response. You need to instrument listening to the correct response and yet this is still quite complex if you want to run an `async` request.
 
-```bash
+In this demo, I create a promise wrapper around the `postMessage` Javascript API and handle sending messages between contexts so that you can simply run `await asyncPromise.send('functionName', [...args])` in your client code.
+
+## Installation
+
+Installation with popular package managemers:
+
+```shell
 npm install async-post-message
+```
 
+```shell
 yarn add async-post-message
+```
 
+```shell
 bun install async-post-message
 ```
+
+## Usage
 
 ### Getting Started
 
@@ -36,7 +56,8 @@ export type MyPromises = {
 The parent process needs to be set up to handle the promise requests:
 
 ```typescript
-// var iframe: HTMLIFrameElement = ...;
+var iframe: HTMLIFrameElement = ...;
+
 const unsubscribe = handleWebViewRequest<MyPromises>(
     iframe.contentWindow,
     async (request) => {
