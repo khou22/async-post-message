@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { delay } from "@/utils/delay";
 import { handleWebViewRequest } from "async-post-message";
+import Link from "next/link";
 
 type LatencyType = "none" | "low" | "medium" | "high" | "timeout";
 
@@ -102,6 +103,15 @@ export default function Home() {
         <p>
           Enter some text and click the &quot;Get Data&quot; button in the Web
           View iFrame. The Web View will fetch the data from the parent window.
+          Usage{" "}
+          <Link
+            href="https://github.com/khou22/async-post-message#usage"
+            target="_blank"
+            className="text-blue-500 hover:text-blue-700 underline"
+          >
+            docs
+          </Link>{" "}
+          available.
         </p>
 
         <div className="w-full flex flex-col gap-y-1">
@@ -159,8 +169,13 @@ export default function Home() {
               Kevin Hou
             </a>
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="Codeium" src="https://codeium.com/badges/main" />
+          <a
+            href="https://codeium.com?repo_name=khou22%2Fasync-post-message"
+            target="_blank"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt="Codeium" src="https://codeium.com/badges/main" />
+          </a>
         </div>
       </main>
     </>
