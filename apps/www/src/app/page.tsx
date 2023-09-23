@@ -43,7 +43,7 @@ export default function Home() {
   const [textValue, setTextValue] = useState(
     `The page loaded at ${moment().format("lll")}`
   );
-  const [fetchLatency, setFetchLatency] = useState<LatencyType>("none");
+  const [fetchLatency, setFetchLatency] = useState<LatencyType>("low");
 
   useEffect(() => {
     if (!iframeRef.current?.contentWindow) return;
